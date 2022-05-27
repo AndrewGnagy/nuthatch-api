@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Api Key Request" />
+    <title>Nuthatch Api</title>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+  </head>
+  <body>
+    <p>We won't sell your email or send you spam. We just need a contact to verify you are a real person and in case of abusive behavior of the api.</p>
+    <form id="key-form" action="javascript:" onsubmit="onFormSubmit(this)">
+      <label for="email">Email:</label><br />
+      <input type="text" id="email" name="email" /><br />
+      <label for="usecase">How will you use this api?</label><br />
+      <input type="text" id="usecase" name="usecase" /><br /><br />
+      <button type="submit"
+        class="g-recaptcha" 
+        data-sitekey="6Ld5BhsgAAAAABzX1zwGyMqkIfhuWP-F9LLV2RM8" 
+        data-callback='onSubmit' 
+        data-action='submit'>
+        Submit
+      </button>
+    </form>
+  </body>
+  <script>
+    function onSubmit(token) {
+      let body = JSON.stringify({
+        recaptcha: token,
+        email: document.querySelector('#email').value,
+        usecase: document.querySelector('#usecase').value,
+      });
+      (async () => {
+        try {
+          const response = await fetch('/keys', {
+            headers: {
+              'content-type': 'application/json'
+            },
+            method: 'POST',
+            body: body
+          });
+          const text = await response.text()
+          if (response.status !== 200) {
+            if (text && text.length > 0) {
+              console.error(text);
+            } else {
+              console.error('There was an error');
+            }
+            return
+          }
+          document.body.innerHTML = text;
+        } catch (e) {
+          console.error(e.message);
+        }
+      })();
+    }
+  </script>
+</html>
