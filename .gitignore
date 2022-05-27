@@ -106,3 +106,6 @@ dist
 #GCP Stuff
 creds.json
 dispatch.yaml
+
+#DBs
+*.db

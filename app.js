@@ -48,7 +48,6 @@ async function checkKey(req, res, next) {
     } else {
       keysUsages[taskKey.name] = 1;
     }
-    console.log(keysUsages);
   } catch (e) {
     res.status(401).json({ error: "unauthorised" });
     return;
