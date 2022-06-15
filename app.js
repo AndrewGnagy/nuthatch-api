@@ -2,11 +2,9 @@
 require("dotenv").config();
 const express = require("express");
 const uuid = require("uuid");
-// const sqlite3 = require("sqlite3");
-// const db = new sqlite3.Database(process.env.GAE_ENV ? "/tmp/birds.db" : "./birds.db");
 const mailer = require("./mailer");
 const validator = require("email-validator");
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 
 const dataKind = "ApiKey";
 
@@ -39,7 +37,7 @@ async function checkKey(req, res, next) {
   try {
     await datastore.get(taskKey);
     if (keysUsages[taskKey.name]) {
-      if(keysUsages[taskKey.name] > 100) {
+      if (keysUsages[taskKey.name] > 100) {
         res.status(429).json({ error: "too many requests" });
         return;
       } else {
@@ -63,8 +61,7 @@ async function checkKey(req, res, next) {
 let birdsList = [];
 app.get("/birds", checkKey, async (req, res) => {
   if (!birdsList.length) {
-    const query = datastore
-      .createQuery("Bird");
+    const query = datastore.createQuery("Bird");
     [birdsList] = await datastore.runQuery(query);
   }
 
@@ -74,19 +71,25 @@ app.get("/birds", checkKey, async (req, res) => {
     conservationStatus: req.query.status,
     order: req.query.order,
     family: req.query.family,
-  }
-  let sentFilterKeys = Object.keys(filters).filter(n => filters[n] !== undefined);
+  };
+  let sentFilterKeys = Object.keys(filters).filter(
+    (n) => filters[n] !== undefined
+  );
   let filteredList = [];
   if (req.query.operator === "OR") {
     filteredList = birdsList.filter((bird) => {
       return sentFilterKeys.some((key) => {
-        return bird[key].toLowerCase().indexOf(filters[key].toLowerCase()) != -1;
+        return (
+          bird[key].toLowerCase().indexOf(filters[key].toLowerCase()) != -1
+        );
       });
     });
   } else {
     filteredList = birdsList.filter((bird) => {
       return sentFilterKeys.every((key) => {
-        return bird[key].toLowerCase().indexOf(filters[key].toLowerCase()) != -1;
+        return (
+          bird[key].toLowerCase().indexOf(filters[key].toLowerCase()) != -1
+        );
       });
     });
   }
@@ -94,92 +97,76 @@ app.get("/birds", checkKey, async (req, res) => {
   res.json(filteredList);
 });
 
-// app.get("/birds", checkKey, async (req, res) => {
-//   let filters = {
-//     name: req.query.name,
-//     sciName: req.query.sciName,
-//     conservationStatus: req.query.status,
-//     ordr: req.query.order,
-//     family: req.query.family,
-//   };
-//   let query = "SELECT * FROM birds";
-//   let filterArgs = [];
-//   if (Object.values(filters).some((x) => x)) {
-//     query += " WHERE ";
-//     let filterVals = [];
-//     for (const [key, value] of Object.entries(filters)) {
-//       if (!value) {
-//         continue;
-//       }
-//       filterVals.push(`${key} like ?`);
-//       filterArgs.push("%" + value + "%");
-//     }
-//     if (req.query.operator === "OR") {
-//       query += filterVals.join(" OR ");
-//     } else {
-//       query += filterVals.join(" AND ");
-//     }
-//   }
-//   db.all(query, filterArgs, function (err, rows) {
-//     if (err) {
-//       console.log(err);
-//       res.status = 500;
-//       res.json({ error: "" });
-//     }
-//     let results = rows.map((row) => {
-//       return {
-//         id: row.id,
-//         name: row.name,
-//         sciName: row.sciName,
-//         status: row.conservationStatus,
-//         order: row.order,
-//         family: row.family,
-//       };
-//     });
-//     res.json(results);
-//   });
-// });
+app.get("/birds/:birdId", checkKey, async (req, res) => {
+  if (!birdsList.length) {
+    const query = datastore.createQuery("Bird");
+    [birdsList] = await datastore.runQuery(query);
+  }
+
+  if (!req.params.birdId) {
+    res.status(400);
+    res.json({ message: "invalid request" });
+  }
+  const birdId = parseInt(req.params.birdId);
+  const bird = birdsList.find((b) => b.id == birdId);
+  console.log(bird);
+  if (!bird) {
+    res.status(404);
+    res.json({ message: "bird not found" });
+    return;
+  }
+  const query = datastore
+    .createQuery("Recording")
+    .filter("birdId", "=", birdId);
+  let [recordings] = await datastore.runQuery(query);
+  bird["recordings"] = recordings;
+  res.json(bird);
+});
 
 const handleRecaptcha = (req, res, next) => {
   const secret_key = process.env.RECAPTCHA_SECRET_KEY;
   const token = req.body.recaptcha;
   const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secret_key}&response=${token}`;
 
-  fetch(url, {method: 'post'})
-      .then(response => response.json())
-      .then(google_response => {
-        if(google_response.success) {
-          next();
-        } else {
-          res.status(400);
-          res.json({message: "invalid request"});
-        }
-      })
-      .catch(error => {
+  fetch(url, { method: "post" })
+    .then((response) => response.json())
+    .then((google_response) => {
+      if (google_response.success) {
+        next();
+      } else {
         res.status(400);
-        res.json({message: "invalid request"});
-      });
+        res.json({ message: "invalid request" });
+      }
+    })
+    .catch((error) => {
+      res.status(400);
+      res.json({ message: "invalid request" });
+    });
 };
 
 app.post("/keys", handleRecaptcha, async (req, res) => {
   const email = req.body.email;
   // Validate email and block a few common spammer domains
-  if (!validator.validate(email) || email.endsWith("qq.com") || email.endsWith("126.com") || email.endsWith("163.com") || email.endsWith(".ru")) {
+  if (
+    !validator.validate(email) ||
+    email.endsWith("qq.com") ||
+    email.endsWith("126.com") ||
+    email.endsWith("163.com") ||
+    email.endsWith(".ru")
+  ) {
     res.status = 400;
-    res.json({message: "invalid request"});
+    res.json({ message: "invalid request" });
     return;
   }
   const key = uuid.v4();
 
   // Check if already exists
-  const query = datastore
-    .createQuery(dataKind)
-    .filter('email', '=', email);
+  const query = datastore.createQuery(dataKind).filter("email", "=", email);
   const [existingEmails] = await datastore.runQuery(query);
   console.log(existingEmails);
   if (existingEmails.length > 0) {
     res.status = 409;
-    res.json({message: "key already exists for this email"});
+    res.json({ message: "key already exists for this email" });
     return;
   }
 
@@ -192,15 +179,15 @@ app.post("/keys", handleRecaptcha, async (req, res) => {
     data: {
       email: email,
       usecase: req.body.usecase,
-      key: key
-    }
+      key: key,
+    },
   };
   await datastore.save(task);
   console.log(`Saved new key ${task.key.name}: ${task.data.email}`);
 
   // Send out the email and respond 200
   mailer.sendKeyEmail(key);
-  res.json({message: "api key sent"})
+  res.json({ message: "api key sent" });
 });
 
 app.use("/", express.static("web"));

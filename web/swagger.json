@@ -28,8 +28,8 @@
     "/birds": {
       "get": {
         "tags": ["birds"],
-        "summary": "Finds Birds",
-        "description": "Get for birds",
+        "summary": "Get Birds List",
+        "description": "Retrieve a list of birds",
         "operationId": "getBirds",
         "produces": ["application/json"],
         "parameters": [
@@ -96,6 +96,41 @@
           }
         }
       }
+    },
+    "/birds/{birdId}": {
+      "get": {
+        "tags": ["birds"],
+        "summary": "Get Bird",
+        "description": "Bird. Includes recording links from Xeno Canto",
+        "operationId": "getRecordings",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "birdId",
+            "in": "path",
+            "description": "Bird id",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/BirdPlus"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value"
+          },
+          "401": {
+            "description": "Unauthorized. Try providing an API-Key header"
+          }
+        }
+      }
     }
   },
   "securityDefinitions": {
@@ -137,10 +172,101 @@
         "status": {
           "type": "string",
           "format": "byte"
+        },
+        "wingspanMin": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "wingspanMax": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "lengthMin": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "lengthMax": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "recordings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Recording"
+          }
         }
       },
       "json": {
         "name": "Bird"
+      }
+    },
+    "BirdPlus": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Bird"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "recordings": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Recording"
+              }
+            }
+          },
+          "json": {
+            "name": "BirdPlus"
+          }
+        }
+      ]
+    },
+    "Recording": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "birdId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sp": {
+          "type": "string",
+          "format": "byte"
+        },
+        "ssp": {
+          "type": "string",
+          "format": "byte"
+        },
+        "en": {
+          "type": "string",
+          "format": "byte"
+        },
+        "file": {
+          "type": "string",
+          "format": "byte"
+        },
+        "length": {
+          "type": "string",
+          "format": "byte"
+        },
+        "rec": {
+          "type": "string",
+          "format": "byte"
+        },
+        "bird-seen": {
+          "type": "string",
+          "format": "byte"
+        },
+        "rmk": {
+          "type": "string",
+          "format": "byte"
+        }
+      },
+      "json": {
+        "name": "Recording"
       }
     }
   }
