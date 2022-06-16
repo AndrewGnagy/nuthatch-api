@@ -4,7 +4,6 @@
   "description": "An api for birders",
   "main": "app.js",
   "scripts": {
-    "prepare": "cp birds.db /tmp/birds.db && ls /tmp",
     "start": "node app"
   },
   "keywords": [
