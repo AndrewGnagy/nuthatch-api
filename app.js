@@ -186,7 +186,7 @@ app.post("/keys", handleRecaptcha, async (req, res) => {
   console.log(`Saved new key ${task.key.name}: ${task.data.email}`);
 
   // Send out the email and respond 200
-  mailer.sendKeyEmail(key);
+  mailer.sendKeyEmail(key, email);
   res.json({ message: "api key sent" });
 });
 

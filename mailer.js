@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-function sendKeyEmail(apiKey) {
+function sendKeyEmail(apiKey, email) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -12,7 +12,7 @@ function sendKeyEmail(apiKey) {
 
   transporter.sendMail({
     from: '"LastElm Admin" <lastelmsoft@gmail.com>', // sender address
-    to: "agnagy89@gmail.com", // list of receivers
+    to: email, // list of receivers
     subject: "Your Nuthatch API Key", // Subject line
     text: "API Key: " + apiKey, // plain text body
     html: "<h2>API Key below</h2><h3>" + apiKey + "</h3>", // html body
