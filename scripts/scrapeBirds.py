@@ -10,6 +10,8 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 import requests
 from time import sleep
+from PIL import Image
+from io import BytesIO
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -44,6 +46,7 @@ def scrape():
     options = Options()
     options.add_argument('--headless')
     options.add_argument('--disable-gpu')
+    options.add_argument("--window-size=650,900")
     browser = webdriver.Chrome(chrome_options=options)
 
     # Go to AllBirds page
@@ -88,6 +91,16 @@ def scrape():
         # print((name, sci_name, family, order, conservation_status))
         # cur.execute("INSERT INTO birds VALUES(?, ?, ?, ?, ?)", (name, sci_name, family, order, conservation_status))
 
+def getBirds():
+    # Get all birds
+    query = datastore_client.query(kind='Bird')
+    l = query.fetch()
+    l = list(l)
+    if not l:
+        print("No result is returned")
+    else:
+        return l
+
 def getRecordings():
     # Get all birds
     query = datastore_client.query(kind='Bird')
@@ -120,4 +133,43 @@ def getRecordings():
             # updateBird(bird)
             # sleep(5)
 
-getRecordings()
+def scrapeUnsplash():
+    # Doing a headless browser, because that's neat
+    #browser = webdriver.PhantomJS()
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument("--window-size=650,900")
+    browser = webdriver.Chrome(chrome_options=options)
+
+    birdList = getBirds()
+
+    for listBird in birdList[586:]:
+        bird = getBird(listBird["id"])
+
+        # Go to Unsplash page
+        browser.get('https://unsplash.com/s/photos/' + bird["name"].replace(" ", "-"))
+
+        # Grab imgs
+        imgs = browser.find_elements("css selector", '[data-test="photo-grid-single-col-img"]')
+
+        img_uris = [img.get_attribute("src").split("?")[0] for img in imgs][0:3]
+        kept_imgs = []
+        print(bird["name"])
+        try:
+            for img_uri in img_uris:
+                response = requests.get(img_uri)
+                with Image.open(BytesIO(response.content)) as img:
+                    img.show()
+                    keep = input("Keep image? (y/n)")
+                    if keep=="y":
+                        kept_imgs.append(img_uri)
+        except:
+            print("err. Continuing")
+
+
+        bird["images"] = kept_imgs
+        print(bird["images"])
+        updateBird(bird)
+
+scrapeUnsplash()

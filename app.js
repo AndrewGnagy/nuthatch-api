@@ -30,7 +30,7 @@ function clearKeyUsages() {
 async function checkKey(req, res, next) {
   const apiKey = req.get("API-Key");
   if (!apiKey) {
-    res.status(401).json({ error: "unauthorised" });
+    res.status(401).json({ error: "Unauthorised. Did you include a valid API-Key header?" });
     return;
   }
   const taskKey = datastore.key([dataKind, apiKey]);
@@ -47,7 +47,7 @@ async function checkKey(req, res, next) {
       keysUsages[taskKey.name] = 1;
     }
   } catch (e) {
-    res.status(401).json({ error: "unauthorised" });
+    res.status(401).json({ error: "Unauthorised. Did you include a valid API-Key header?" });
     return;
   }
 

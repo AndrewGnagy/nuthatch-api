@@ -1,20 +1,230 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    name="description"
-    content="SwaggerUI"
-  />
-  <title>Nuthatch Api | SwaggerUI</title>
+<title>Nuthatch API</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body {font-family: "Lato", sans-serif}
+.mySlides {display: none}
+</style>
 </head>
 <body>
-<div>
-  <h1>Nuthatch API</h1>
-  <p>Welcome to Nuthatch API. A resource for birders.</p>
-  <p>Usage documented via <a href="./swagger.html">Swagger API</a></p>
-  <p>You will first need an API-Key which you can generate <a href="./getKey.html">HERE</a></p>
+
+<!-- Navbar -->
+<div class="top">
+  <div class="bar black card">
+    <a class="bar-item button padding-large hide-medium hide-large right" href="javascript:void(0)" onclick="navHelper()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
+    <a href="/" class="bar-item button padding-large">Home</a>
+    <a href="/swagger.html" class="bar-item button padding-large">Docs</a>
+    <!-- <div class="dropdown-hover hide-small">
+      <button class="padding-large button" title="More">MORE <i class="fa fa-caret-down"></i></button>     
+      <div class="dropdown-content bar-block card-4">
+        <a href="#" class="bar-item button">Merchandise</a>
+        <a href="#" class="bar-item button">Extras</a>
+        <a href="#" class="bar-item button">Media</a>
+      </div>
+    </div> -->
+  </div>
 </div>
+
+<!-- Navbar on small screens (remove the onclick attribute if you want the navbar to always show on top of the content when clicking on the links) -->
+<div id="nav" class="bar-block black hide hide-large hide-medium top" style="margin-top:46px">
+  <a href="/" class="bar-item button padding-large" onclick="navHelper()">Home</a>
+  <a href="/swagger.html" class="bar-item button padding-large" onclick="navHelper()">Docs</a>
+</div>
+
+<!-- Page content -->
+<div class="content" style="max-width:2000px;margin-top:46px">
+
+  <!-- Main card -->
+  <div class="grey">
+    <div class="container content padding-64" style="max-width:800px" id="top">
+      <!-- <img class="show auto" src="images/logo.svg" width="200" height="200" /> -->
+      <h2 class="wide center">Nuthatch API v1.1.0</h2>
+      <p class="opacity center"><i>An api for birds. Now with images!</i></p>
+      <p class="justify center">This project is a free easy-to-use API with basic bird data. Currently, it includes an index of over 600 birds. North America only for now.</p>
+      <h3>Versions</h3>
+      <ul>
+        <li>1.0.0 - Initial release</li>
+        <li>1.1.0 - Images included! Public use images compiled using <a href="https://unsplash.com/">Unsplash</a> as well as my personal photography collection. This was done via an automated process from free images
+          and not all of the ids were accurate. Please report mislabeled images. <a href="mailto:lastelmsoft@gmail.com">lastelmsoft@gmail.com</a></li>
+      </ul>
+      <h3>Future updates</h3>
+      <ul>
+        <li>Expand beyond North-American birds</li>
+        <li>Expand images</li>
+        <li>Paging</li>
+      </ul>
+      <h3>Documentation</h3>
+      <p>The api is documented using <a href="./swagger.html">Swagger</a></p>
+      <p>You will first need an API-Key which you can generate <a href="./getKey.html">HERE</a></p>
+      <h3>Contribute</h3>
+      <p>Our database could use more info! Photography and ID help would be appreciated as well as any coding time.</p>
+      <p>This is an <a href="https://github.com/AndrewGnagy/nuthatch-api">open-source project</a>. Contact the <a href="mailto:lastelmsoft@gmail.com">developer</a> for more info</p>
+    </div>
+  </div>
+
+  <!-- Example -->
+  <div class="light-grey" id="usage">
+    <div class="container content padding-64" style="max-width:800px">
+      <h2 class="wide center">How to use</h2>
+      <h3 class="wide center">Example code:</h3>
+      <p>A simple and not particularly interesting example of how you might use Nuthatch API</p>
+      <div class="row black">
+        <pre><code>
+  function fillBirdList() {
+    //Due to same-origin policy, you will need to proxy the request through your server
+    // if you want to use the API on a web page
+    // More info here: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy
+    fetch('/birds?family=Accipitriformes', { //Get some hawks
+      headers: {
+        'api-key': 'YOUR_API_KEY_HERE'
+      }
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not OK');
+      }
+      return response.json();
+    })
+    .then((data) => {
+      let birdListContainer = document.getElementById("birdList");
+      for(let i=0; i<5; i++) {
+        let bird = data[i];
+        //Row
+        let birdRow = document.createElement("div");
+        birdRow.className = "row";
+        let birdDiv = document.createElement("div");
+        birdDiv.className = "third";
+        birdDiv.innerHTML = `&lt;h2&gt;${bird[&quot;name&quot;]}&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;${bird[&quot;sciName&quot;]}&lt;/li&gt;&lt;li&gt;Conservation Status: ${bird[&quot;status&quot;]}&lt;/li&gt;&lt;/ul&gt;`;
+        //Image
+        let imgDiv = document.createElement("div");
+        imgDiv.className = "third";
+        let image = document.createElement("img");
+        image.setAttribute("src", bird["images"].length ? bird["images"][0] : "noBird.png");
+        image.setAttribute("width", "500");
+        imgDiv.appendChild(image);
+        birdRow.appendChild(birdDiv);
+        birdRow.appendChild(imgDiv);
+        birdListContainer.appendChild(birdRow);
+      }
+    })
+    .catch((error) => {
+      console.error('There has been a problem with your fetch operation:', error);
+    });
+  }
+  fillBirdList();
+        </code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Example -->
+  <div class="grey" id="example">
+    <div class="container content padding-64" style="max-width:800px">
+      <h2 class="wide center">Example Output</h2>
+      <h3 class="wide center">Bird List</h3>
+
+      <div class="row" id="birdList">
+      </div>
+
+    </div>
+  </div>
+  
+<!-- End Page Content -->
+</div>
+
+<!-- Footer -->
+<footer class="container padding-64 center opacity teal xlarge">
+  <i class="fa fa-facebook-official hover-opacity"></i>
+  <i class="fa fa-instagram hover-opacity"></i>
+  <i class="fa fa-snapchat hover-opacity"></i>
+  <i class="fa fa-pinterest-p hover-opacity"></i>
+  <i class="fa fa-twitter hover-opacity"></i>
+  <i class="fa fa-linkedin hover-opacity"></i>
+  <p class="medium">Powered by <a href="https://www.lastelm.software">Last Elm Software</a></p>
+  <p>
+    <form action="https://www.paypal.com/donate" method="post" target="_top">
+      <input type="hidden" name="business" value="W68A34TSDSH8Y" />
+      <input type="hidden" name="no_recurring" value="0" />
+      <input type="hidden" name="item_name" value="Thank you for helping to keep the LastElm.software servers running." />
+      <input type="hidden" name="currency_code" value="USD" />
+      <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+      <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
+      </form>      
+  </p>
+</footer>
+
+<script>
+var myIndex = 0;
+function fillBirdList() {
+  fetch('/birds?family=Accipitriformes', {
+    headers: {
+      'api-key': '0fe8f758-8718-4128-8897-c97cfee45506'
+    }
+  })
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error('Network response was not OK');
+    }
+    return response.json();
+  })
+  .then((data) => {
+    let birdListContainer = document.getElementById("birdList");
+    for(let i=0; i<5; i++) {
+      let bird = data[i];
+      //Row
+      let birdRow = document.createElement("div");
+      birdRow.className = "row";
+      let birdDiv = document.createElement("div");
+      birdDiv.className = "third";
+      birdDiv.innerHTML = `<h2>${bird["name"]}</h2><ul><li>${bird["sciName"]}</li><li>Conservation Status: ${bird["status"]}</li></ul>`;
+      //Image
+      let imgDiv = document.createElement("div");
+      imgDiv.className = "third";
+      let image = document.createElement("img");
+      image.setAttribute("src", bird["images"].length ? bird["images"][0] : "noBird.png");
+      image.setAttribute("width", "500");
+      imgDiv.appendChild(image);
+      birdRow.appendChild(birdDiv);
+      birdRow.appendChild(imgDiv);
+      birdListContainer.appendChild(birdRow);
+    }
+  })
+  .catch((error) => {
+    console.error('There has been a problem with your fetch operation:', error);
+  });
+}
+fillBirdList();
+
+// Automatic Slideshow - change image every 4 seconds
+//carousel();
+function carousel() {
+  var i;
+  var x = document.getElementsByClassName("mySlides");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";  
+  }
+  myIndex++;
+  if (myIndex > x.length) {myIndex = 1}    
+  x[myIndex-1].style.display = "block";  
+  setTimeout(carousel, 4000);    
+}
+
+// Used to toggle the menu on small screens when clicking on the menu button
+function navHelper() {
+  var x = document.getElementById("nav");
+  if (x.className.indexOf("show") == -1) {
+    x.className += " show";
+  } else { 
+    x.className = x.className.replace(" show", "");
+  }
+}
+</script>
+
 </body>
 </html>

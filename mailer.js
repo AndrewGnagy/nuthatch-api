@@ -15,7 +15,7 @@ function sendKeyEmail(apiKey, email) {
     to: email, // list of receivers
     subject: "Your Nuthatch API Key", // Subject line
     text: "API Key: " + apiKey, // plain text body
-    html: "<h2>API Key below</h2><h3>" + apiKey + "</h3>", // html body
+    html: "<h2>API Key below</h2><h3>" + apiKey + "</h3><p>Having trouble? Feel free to reach out with questions by replying to this email.</p>", // html body
   }).then(info => {
     console.log({info});
   }).catch(console.error);
