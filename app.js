@@ -5,6 +5,7 @@ const uuid = require("uuid");
 const mailer = require("./mailer");
 const validator = require("email-validator");
 const fetch = require("node-fetch");
+const cors = require('cors');
 
 const dataKind = "ApiKey";
 
@@ -16,6 +17,7 @@ const datastore = new Datastore();
 // Pulling in the routes
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 let keysUsages = {};
 // Clear usages hourly
@@ -134,13 +136,14 @@ const handleRecaptcha = (req, res, next) => {
       if (google_response.success) {
         next();
       } else {
+        console.log("captcha fail");
         res.status(400);
-        res.json({ message: "invalid request" });
+        res.json({ message: "invalid request. Recaptcha failure" });
       }
     })
     .catch((error) => {
       res.status(400);
-      res.json({ message: "invalid request" });
+      res.json({ message: "invalid request. Recaptcha failure" });
     });
 };
 
@@ -154,7 +157,7 @@ app.post("/keys", handleRecaptcha, async (req, res) => {
     email.endsWith("163.com") ||
     email.endsWith(".ru")
   ) {
-    res.status = 400;
+    res.status(400);
     res.json({ message: "invalid request" });
     return;
   }
@@ -165,7 +168,7 @@ app.post("/keys", handleRecaptcha, async (req, res) => {
   const [existingEmails] = await datastore.runQuery(query);
   console.log(existingEmails);
   if (existingEmails.length > 0) {
-    res.status = 409;
+    res.status(409);
     res.json({ message: "key already exists for this email" });
     return;
   }

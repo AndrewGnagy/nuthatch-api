@@ -77,9 +77,6 @@ body {font-family: "Lato", sans-serif}
       <div class="row black">
         <pre><code>
   function fillBirdList() {
-    //Due to same-origin policy, you will need to proxy the request through your server
-    // if you want to use the API on a web page
-    // More info here: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy
     fetch('/birds?family=Accipitriformes', { //Get some hawks
       headers: {
         'api-key': 'YOUR_API_KEY_HERE'
