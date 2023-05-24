@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import time
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 import sqlite3
@@ -53,7 +54,7 @@ def scrape():
     browser.get('https://www.allaboutbirds.org/guide/browse/taxonomy')
 
     # Grab links
-    links = browser.find_elements_by_css_selector('.species-info a')
+    links = browser.find_elements(By.CSS_SELECTOR, '.species-info a')
 
     link_uris = [a.get_attribute("href") for a in links]
     for i, link_uri in enumerate(link_uris):
@@ -65,12 +66,12 @@ def scrape():
             if bird["name"].replace("'", "").replace(" ", "_") not in link_uri:
                 print("Error")
                 continue
-            # name = browser.find_element_by_css_selector('.speciesInfoCard .species-name').text
-            # sci_name = browser.find_element_by_css_selector('.speciesInfoCard .species-info em').text
-            # family = browser.find_element_by_css_selector('.speciesInfoCard .additional-info li:nth-child(2)').text.split(": ")[1]
-            # order = browser.find_element_by_css_selector('.speciesInfoCard .additional-info li:nth-child(1)').text.split(": ")[1]
-            # conservation_status = browser.find_element_by_css_selector('.speciesInfoCard .conservation + span span:nth-child(2)').text
-            sizes = browser.find_element_by_css_selector('.rel-size .add-info').text
+            # name = browser.find_element(By.CSS_SELECTOR, '.speciesInfoCard .species-name').text
+            # sci_name = browser.find_element(By.CSS_SELECTOR, '.speciesInfoCard .species-info em').text
+            # family = browser.find_element(By.CSS_SELECTOR, '.speciesInfoCard .additional-info li:nth-child(2)').text.split(": ")[1]
+            # order = browser.find_element(By.CSS_SELECTOR, '.speciesInfoCard .additional-info li:nth-child(1)').text.split(": ")[1]
+            # conservation_status = browser.find_element(By.CSS_SELECTOR, '.speciesInfoCard .conservation + span span:nth-child(2)').text
+            sizes = browser.find_element(By.CSS_SELECTOR, '.rel-size .add-info').text
             print(i, sizes)
             m = re.search("Length.*\(([0-9\.]+)-([0-9\.]+) cm+\)", sizes)
             if m:
@@ -172,4 +173,75 @@ def scrapeUnsplash():
         print(bird["images"])
         updateBird(bird)
 
-scrapeUnsplash()
+def scrapeAvibase():
+    # Doing a headless browser, because that's neat
+    #browser = webdriver.PhantomJS()
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument("--window-size=650,900")
+    browser = webdriver.Chrome(chrome_options=options)
+
+    # Go to EUC bird list page
+    browser.get('https://avibase.bsc-eoc.org/checklist.jsp?region=EUO')
+
+    # Grab links
+    rows = browser.find_elements(By.CSS_SELECTOR, 'tr.highlight1')
+    links = []
+    for i, row in enumerate(rows):
+        try:
+            if "Rare/Accidental" in row.text:
+                continue
+            if "Introduced species" in row.text:
+                continue
+            a = row.find_element(By.CSS_SELECTOR, 'a')
+            links.append(a.get_attribute("href"))
+        except Exception as e:
+            print(e)
+
+    for i, link in enumerate(links):
+        try:
+            browser.get(link)
+            time.sleep(2)
+            name = browser.find_element(By.CSS_SELECTOR, 'h2').text
+            sci_name = browser.find_element(By.CSS_SELECTOR, 'h4 i').text
+            family = browser.find_element(By.CSS_SELECTOR, '#taxoninfo > a:nth-child(7)').text
+            order = browser.find_element(By.CSS_SELECTOR, '#taxoninfo').get_attribute('innerText').split(":\n  ")[1].split("\nFamily")[0]
+            # conservation_status = browser.find_element(By.CSS_SELECTOR, '.speciesInfoCard .conservation + span span:nth-child(2)').text
+            # sizes = browser.find_element(By.CSS_SELECTOR, '.rel-size .add-info').text
+            # print(i, sizes)
+            # m = re.search("Length.*\(([0-9\.]+)-([0-9\.]+) cm+\)", sizes)
+            # if m:
+            #     bird["lengthMin"] = m.group(1)
+            #     bird["lengthMax"] = m.group(2)
+            #     # Insert a row of data
+            #     print(i, bird["lengthMin"], bird["lengthMax"], link_uri)
+            # m = re.search("Wingspan.*\(([0-9\.]+)-([0-9\.]+) cm+\)", sizes)
+            # if m:
+            #     bird["wingspanMin"] = m.group(1)
+            #     bird["wingspanMax"] = m.group(2)
+            #     # Insert a row of data
+            #     print(i, bird["wingspanMin"], bird["wingspanMax"], link_uri) 
+            bird = {}
+            id = i + 635
+            bird['id'] = i + 635
+            bird['name'] = name
+            bird['sciName'] = sci_name
+            bird['family'] = family
+            bird['order'] = order
+            bird['region'] = "Western Europe"
+            print(bird)
+            with datastore_client.transaction():
+                key = datastore_client.key("Bird", id)
+                bird_entry = datastore.Entity(key=key)
+                bird_entry.update(bird)
+                datastore_client.put(bird_entry)
+
+        except Exception as e:
+            print(e)
+
+birds = getBirds()
+for bird in birds:
+    if 'images' not in bird:
+        bird['images'] = []
+        updateBird(bird)
