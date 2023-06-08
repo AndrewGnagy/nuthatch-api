@@ -104,35 +104,30 @@ def getBirds():
 
 def getRecordings():
     # Get all birds
-    query = datastore_client.query(kind='Bird')
-    l = query.fetch()
-    l = list(l)
-    if not l:
-        print("No result is returned")
-    else:
-        for bird in l:
-            for rec in bird['recordings']:
-                kind = "Recording"
-                rec_id = rec['id']
-                rec_key = datastore_client.key(kind, rec_id)
-                rec_ent = datastore.Entity(key=rec_key)
-                rec_ent.update(rec)
-                rec_ent['birdId'] = bird['id']
-                datastore_client.put(rec_ent)
+    birds = getBirds()
+    for bird in birds:
+        for rec in bird['recordings']:
+            kind = "Recording"
+            rec_id = rec['id']
+            rec_key = datastore_client.key(kind, rec_id)
+            rec_ent = datastore.Entity(key=rec_key)
+            rec_ent.update(rec)
+            rec_ent['birdId'] = bird['id']
+            datastore_client.put(rec_ent)
 
-            bird['recordings'] = []
-            updateBird(bird)
-            # print(bird)
-            # # Xeno Canto Query
-            # queryString = f"https://xeno-canto.org/api/2/recordings?query={bird['sciName'].replace(' ', '+')}+cnt:%22united%20states%22len:5-30lic:PDq_gt:D"
-            # print(queryString)
-            # recs = requests.get(queryString).json()
-            # print(recs)
-            # for i, rec in enumerate(recs['recordings'][:10]):
-            #     recs['recordings'][i]['rmk'] = recs['recordings'][i]['rmk'][:100]
-            # bird['recordings'] = recs['recordings'][:10]
-            # updateBird(bird)
-            # sleep(5)
+        bird['recordings'] = []
+        updateBird(bird)
+        # print(bird)
+        # # Xeno Canto Query
+        # queryString = f"https://xeno-canto.org/api/2/recordings?query={bird['sciName'].replace(' ', '+')}+cnt:%22united%20states%22len:5-30lic:PDq_gt:D"
+        # print(queryString)
+        # recs = requests.get(queryString).json()
+        # print(recs)
+        # for i, rec in enumerate(recs['recordings'][:10]):
+        #     recs['recordings'][i]['rmk'] = recs['recordings'][i]['rmk'][:100]
+        # bird['recordings'] = recs['recordings'][:10]
+        # updateBird(bird)
+        # sleep(5)
 
 def scrapeUnsplash():
     # Doing a headless browser, because that's neat
@@ -145,14 +140,14 @@ def scrapeUnsplash():
 
     birdList = getBirds()
 
-    for listBird in birdList[586:]:
+    for listBird in birdList[669:]:
         bird = getBird(listBird["id"])
 
         # Go to Unsplash page
         browser.get('https://unsplash.com/s/photos/' + bird["name"].replace(" ", "-"))
 
         # Grab imgs
-        imgs = browser.find_elements("css selector", '[data-test="photo-grid-single-col-img"]')
+        imgs = browser.find_elements(By.CSS_SELECTOR, 'img[data-test*="photo-grid-"]')
 
         img_uris = [img.get_attribute("src").split("?")[0] for img in imgs][0:3]
         kept_imgs = []
@@ -165,6 +160,8 @@ def scrapeUnsplash():
                     keep = input("Keep image? (y/n)")
                     if keep=="y":
                         kept_imgs.append(img_uri)
+                    if keep=="s":
+                        break
         except:
             print("err. Continuing")
 
@@ -240,8 +237,21 @@ def scrapeAvibase():
         except Exception as e:
             print(e)
 
-birds = getBirds()
-for bird in birds:
-    if 'images' not in bird:
-        bird['images'] = []
-        updateBird(bird)
+def removeDups():
+    birdList = getBirds()
+    uniqueBirdList = []
+
+    for listBird in birdList:
+        bird = getBird(listBird["id"])
+        if bird['sciName'] in [uBird['sciName'] for uBird in uniqueBirdList]:
+            #Do something
+            uBird = [uBird for uBird in uniqueBirdList if uBird['sciName'] == bird['sciName']][0]
+            uBird['region'].append(bird['region'])
+            updateBird(uBird)
+            keep = input(uBird['sciName'] + " uBird. Continue?")
+            datastore_client.delete(bird)
+        else:
+            bird['region'] = [bird['region']]
+            updateBird(bird)
+            uniqueBirdList.append(bird)
+            continue

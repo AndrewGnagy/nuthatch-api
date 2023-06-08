@@ -266,6 +266,13 @@
           "type": "string",
           "format": "byte"
         },
+        "region": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["North America", "Western Europe"]
+          }
+        },
         "wingspanMin": {
           "type": "integer",
           "format": "int64"
