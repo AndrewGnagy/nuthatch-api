@@ -93,6 +93,13 @@
             "enum": ["North America", "Western Europe"]
           },
           {
+            "name": "hasImg",
+            "in": "query",
+            "description": "Filter by only birds that have images",
+            "required": false,
+            "type": "boolean"
+          },
+          {
             "name": "operator",
             "in": "query",
             "description": "operator to use",

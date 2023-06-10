@@ -10,6 +10,14 @@ const { Datastore } = require("@google-cloud/datastore");
 // Creates a client
 const datastore = new Datastore();
 
+let filterCheck = (key, bird, value) => {
+  if (key == 'hasImg') {
+    return ((value == "true") == (bird["images"] && bird["images"].length > 0));
+  } else {
+    return bird[key].toLowerCase().indexOf(value.toLowerCase()) != -1;
+  }
+}
+
 //There's not that much data, we can keep it in memory for now
 let birdsList = [];
 router.get("/", checkKey, async (req, res) => {
@@ -26,6 +34,7 @@ router.get("/", checkKey, async (req, res) => {
     order: req.query.order,
     family: req.query.family,
     region: req.query.region,
+    hasImg: req.query.hasImg
   };
   let sentFilterKeys = Object.keys(filters).filter(
     (n) => filters[n] !== undefined
@@ -34,17 +43,13 @@ router.get("/", checkKey, async (req, res) => {
   if (req.query.operator === "OR") {
     filteredList = birdsList.filter((bird) => {
       return sentFilterKeys.some((key) => {
-        return (
-          bird[key].toLowerCase().indexOf(filters[key].toLowerCase()) != -1
-        );
+        return filterCheck(key, bird, filters[key]);
       });
     });
   } else {
     filteredList = birdsList.filter((bird) => {
       return sentFilterKeys.every((key) => {
-        return (
-          bird[key].toLowerCase().indexOf(filters[key].toLowerCase()) != -1
-        );
+        return filterCheck(key, bird, filters[key]);
       });
     });
   }
