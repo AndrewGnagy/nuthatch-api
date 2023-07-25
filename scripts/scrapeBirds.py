@@ -140,18 +140,19 @@ def scrapeUnsplash():
 
     birdList = getBirds()
 
-    for listBird in birdList[669:]:
+    for listBird in birdList[996:]:
         bird = getBird(listBird["id"])
 
         # Go to Unsplash page
         browser.get('https://unsplash.com/s/photos/' + bird["name"].replace(" ", "-"))
+        time.sleep(4)
 
         # Grab imgs
         imgs = browser.find_elements(By.CSS_SELECTOR, 'img[data-test*="photo-grid-"]')
 
-        img_uris = [img.get_attribute("src").split("?")[0] for img in imgs][0:3]
+        img_uris = [img.get_attribute("s rc").split("?")[0] for img in imgs][0:3]
         kept_imgs = []
-        print(bird["name"])
+        print(bird["name"] + " - " + str(bird["id"]))
         try:
             for img_uri in img_uris:
                 response = requests.get(img_uri)
@@ -255,3 +256,5 @@ def removeDups():
             updateBird(bird)
             uniqueBirdList.append(bird)
             continue
+
+scrapeUnsplash()

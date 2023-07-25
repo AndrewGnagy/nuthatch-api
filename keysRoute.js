@@ -74,7 +74,7 @@ const handleRecaptcha = (req, res, next) => {
     });
 };
 
-router.post("/keys", handleRecaptcha, async (req, res) => {
+router.post("/", handleRecaptcha, async (req, res) => {
   const email = req.body.email;
   // Validate email and block a few common spammer domains
   if (

@@ -15,4 +15,6 @@
 
 # Node.js dependencies:
 node_modules/
-birds.db
+
+# Scripts for scraping
+scripts/
