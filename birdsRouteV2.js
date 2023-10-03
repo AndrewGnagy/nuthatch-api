@@ -14,7 +14,7 @@ let filterCheck = (key, bird, value) => {
   if (key == 'hasImg') {
     return ((value == "true") == (bird["images"] && bird["images"].length > 0));
   } else if (key == 'region') {
-    return bird[key] == value;
+    return bird[key].indexOf(value) != -1;
   } else {
     return bird[key].toLowerCase().indexOf(value.toLowerCase()) != -1;
   }
