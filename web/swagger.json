@@ -286,6 +286,146 @@
           }
         }
       }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get Users List",
+        "description": "Retrieve a paged list of users",
+        "operationId": "getUsers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized. Try providing an API-Key header",
+            "content": {}
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Add a User",
+        "description": "Adds a user",
+        "operationId": "addUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized. Try providing an API-Key header",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/users/{userId}/checklist": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get User CheckList",
+        "description": "Retrieve checklist entries for user",
+        "operationId": "getChecklistEntries",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChecklistEntry"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized. Try providing an API-Key header",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/users/{userId}/checklist/{birdId}": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Add CheckList entry",
+        "description": "Adds checklist entry for user",
+        "operationId": "postChecklistEntry",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChecklistEntry"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized. Try providing an API-Key header",
+            "content": {}
+          }
+        }
+      }
     }
   },
   "components": {
@@ -445,6 +585,36 @@
             "items": {
               "$ref": "#/components/schemas/Bird"
             }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "format": "byte"
+          }
+        }
+      },
+      "ChecklistEntry": {
+        "type": "object",
+        "properties": {
+          "birdId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": {
+            "type": "string",
+            "format": "byte"
+          },
+          "date-time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "type": "string",
+            "format": "byte"
           }
         }
       }

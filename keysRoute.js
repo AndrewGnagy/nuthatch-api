@@ -1,7 +1,7 @@
 "use strict";
 require("dotenv").config();
 const router = require("express").Router();
-const uuid = require("uuid");
+const { randomUUID } = require('crypto');
 const mailer = require("./mailer");
 const validator = require("email-validator");
 
@@ -25,7 +25,7 @@ function clearKeyUsages() {
 async function checkKey(req, res, next) {
   const apiKey = req.get("API-Key");
   if (!apiKey) {
-    res.status(401).json({ error: "Unauthorised. Did you include a valid API-Key header?" });
+    res.status(401).json({ error: "Unauthorized. Did you include a valid API-Key header?" });
     return;
   }
   const taskKey = datastore.key([dataKind, apiKey]);
@@ -42,7 +42,7 @@ async function checkKey(req, res, next) {
       keysUsages[taskKey.name] = 1;
     }
   } catch (e) {
-    res.status(401).json({ error: "Unauthorised. Did you include a valid API-Key header?" });
+    res.status(401).json({ error: "Unauthorized. Did you include a valid API-Key header?" });
     return;
   }
 
@@ -88,7 +88,7 @@ router.post("/", handleRecaptcha, async (req, res) => {
     res.json({ message: "invalid request" });
     return;
   }
-  const key = uuid.v4();
+  const key = randomUUID();
 
   // Check if already exists
   const query = datastore.createQuery(dataKind).filter("email", "=", email);
