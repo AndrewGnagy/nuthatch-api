@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require('cors');
 const birdsRoute = require("./birdsRoute");
-const usersRoute = require("./usersRoute");
+const checklistRoute = require("./checklistRoute");
 const birdsRouteV2 = require("./birdsRouteV2");
 const { router: keysRoute } = require("./keysRoute");
 
@@ -16,7 +16,7 @@ app.use("/", express.static("web"));
 app.use("/keys", keysRoute);
 app.use("/birds", birdsRoute);
 app.use("/v2/birds", birdsRouteV2);
-app.use("/users", usersRoute);
+app.use("/checklist", checklistRoute);
 
 const PORT = process.env.PORT || 3000;
 

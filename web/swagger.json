@@ -18,6 +18,9 @@
     },
     {
       "url": "http://nuthatch.lastelm.software/"
+    },
+    {
+      "url": "http://localhost:3000/"
     }
   ],
   "security": [
@@ -38,9 +41,7 @@
   "paths": {
     "/v2/birds": {
       "get": {
-        "tags": [
-          "birds"
-        ],
+        "tags": ["birds"],
         "summary": "Get Birds List v2",
         "description": "Retrieve a paged list of birds",
         "operationId": "getBirdsV2",
@@ -109,10 +110,7 @@
             "description": "Geographical region",
             "schema": {
               "type": "string",
-              "enum": [
-                "North America",
-                "Western Europe"
-              ]
+              "enum": ["North America", "Western Europe"]
             }
           },
           {
@@ -129,10 +127,7 @@
             "description": "operator to use",
             "schema": {
               "default": "AND",
-              "enum": [
-                "AND",
-                "OR"
-              ]
+              "enum": ["AND", "OR"]
             }
           }
         ],
@@ -142,7 +137,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagedResponse"
+                  "$ref": "#/components/schemas/PagedResponseBird"
                 }
               }
             }
@@ -160,9 +155,7 @@
     },
     "/birds": {
       "get": {
-        "tags": [
-          "birds"
-        ],
+        "tags": ["birds"],
         "summary": "Get Birds List",
         "description": "Retrieve a list of birds - Limited to 200",
         "operationId": "getBirds",
@@ -213,10 +206,7 @@
             "description": "operator to use",
             "schema": {
               "default": "AND",
-              "enum": [
-                "AND",
-                "OR"
-              ]
+              "enum": ["AND", "OR"]
             }
           }
         ],
@@ -248,9 +238,7 @@
     },
     "/birds/{birdId}": {
       "get": {
-        "tags": [
-          "birds"
-        ],
+        "tags": ["birds"],
         "summary": "Get Bird",
         "description": "Bird. Includes recording links from Xeno Canto",
         "operationId": "getRecordings",
@@ -287,14 +275,12 @@
         }
       }
     },
-    "/users": {
+    "/checklists": {
       "get": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Get Users List",
-        "description": "Retrieve a paged list of users",
-        "operationId": "getUsers",
+        "tags": ["checklists"],
+        "summary": "Get Checklists List",
+        "description": "Retrieve a paged list of checklists",
+        "operationId": "getChecklists",
         "parameters": [],
         "responses": {
           "200": {
@@ -302,10 +288,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/User"
-                  }
+                  "$ref": "#/components/schemas/PagedResponseChecklist"
                 }
               }
             }
@@ -321,18 +304,16 @@
         }
       },
       "post": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Add a User",
-        "description": "Adds a user",
-        "operationId": "addUser",
+        "tags": ["checklists"],
+        "summary": "Add a Checklist",
+        "description": "Adds a checklist",
+        "operationId": "addChecklist",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/User"
+                "$ref": "#/components/schemas/Checklist"
               }
             }
           }
@@ -343,10 +324,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/User"
-                  }
+                  "$ref": "#/components/schemas/Checklist"
                 }
               }
             }
@@ -362,25 +340,48 @@
         }
       }
     },
-    "/users/{userId}/checklist": {
+    "/checklists/{checklistId}/entries": {
       "get": {
-        "tags": [
-          "users"
-        ],
-        "summary": "Get User CheckList",
-        "description": "Retrieve checklist entries for user",
+        "tags": ["checklists"],
+        "summary": "Get Checklist CheckList",
+        "description": "Retrieve checklist entries for checklist",
         "operationId": "getChecklistEntries",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "checklistId",
+            "in": "path",
+            "description": "Checklist id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Which page to fetch",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Size of page to fetch. Max 100",
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ChecklistEntry"
-                  }
+                  "$ref": "#/components/schemas/PagedResponseChecklistEntry"
                 }
               }
             }
@@ -396,15 +397,42 @@
         }
       }
     },
-    "/users/{userId}/checklist/{birdId}": {
+    "/checklists/{checklistId}/entries/{birdId}": {
       "post": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["checklists"],
         "summary": "Add CheckList entry",
-        "description": "Adds checklist entry for user",
+        "description": "Adds checklist entry for checklist",
         "operationId": "postChecklistEntry",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "checklistId",
+            "in": "path",
+            "description": "Checklist id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "birdId",
+            "in": "path",
+            "description": "Bird id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChecklistEntry"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "successful operation",
@@ -466,10 +494,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "North America",
-                "Western Europe"
-              ]
+              "enum": ["North America", "Western Europe"]
             }
           },
           "wingspanMin": {
@@ -579,19 +604,71 @@
           "pageSize": {
             "type": "integer",
             "format": "int64"
-          },
-          "entities": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Bird"
-            }
           }
         }
       },
-      "User": {
+      "PagedResponseBird": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PagedResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "entities": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Bird"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PagedResponseChecklist": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PagedResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "entities": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Checklist"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PagedResponseChecklistEntry": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PagedResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "entities": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ChecklistEntry"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Checklist": {
         "type": "object",
         "properties": {
           "name": {
+            "type": "string",
+            "format": "byte"
+          },
+          "id": {
             "type": "string",
             "format": "byte"
           }
