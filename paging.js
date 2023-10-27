@@ -19,8 +19,8 @@ const pagedResponse = (entityList, page, pageSize) => {
   };
 };
 
-const readPagingParams = (eventIn) => {
-  const entityOut = { page: 1, pageSize: 25 };
+const readPagingParams = (eventIn, sizeDefault = 25) => {
+  const entityOut = { page: 1, pageSize: sizeDefault };
   if (eventIn.query) {
     entityOut.page = !isNaN(eventIn.query.page)
       ? parseInt(eventIn.query.page, 10)
