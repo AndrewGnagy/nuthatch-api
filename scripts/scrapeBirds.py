@@ -4,7 +4,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
-import sqlite3
 from google.cloud import datastore
 import re
 from os.path import join, dirname
@@ -18,8 +17,6 @@ dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 print('Starting BirdScraper')
-# con = sqlite3.connect('birds.db')
-# cur = con.cursor()
 
 # Instantiates a client
 datastore_client = datastore.Client("possible-post-315311")

@@ -10,7 +10,7 @@
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version": "2.0.1"
+    "version": "2.1.0"
   },
   "servers": [
     {
@@ -18,6 +18,9 @@
     },
     {
       "url": "http://nuthatch.lastelm.software/"
+    },
+    {
+      "url": "http://localhost:3000/"
     }
   ],
   "security": [
@@ -38,9 +41,7 @@
   "paths": {
     "/v2/birds": {
       "get": {
-        "tags": [
-          "birds"
-        ],
+        "tags": ["birds"],
         "summary": "Get Birds List v2",
         "description": "Retrieve a paged list of birds",
         "operationId": "getBirdsV2",
@@ -109,10 +110,7 @@
             "description": "Geographical region",
             "schema": {
               "type": "string",
-              "enum": [
-                "North America",
-                "Western Europe"
-              ]
+              "enum": ["North America", "Western Europe"]
             }
           },
           {
@@ -129,10 +127,7 @@
             "description": "operator to use",
             "schema": {
               "default": "AND",
-              "enum": [
-                "AND",
-                "OR"
-              ]
+              "enum": ["AND", "OR"]
             }
           }
         ],
@@ -142,7 +137,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagedResponse"
+                  "$ref": "#/components/schemas/PagedResponseBird"
                 }
               }
             }
@@ -160,9 +155,7 @@
     },
     "/birds": {
       "get": {
-        "tags": [
-          "birds"
-        ],
+        "tags": ["birds"],
         "summary": "Get Birds List",
         "description": "Retrieve a list of birds - Limited to 200",
         "operationId": "getBirds",
@@ -213,10 +206,7 @@
             "description": "operator to use",
             "schema": {
               "default": "AND",
-              "enum": [
-                "AND",
-                "OR"
-              ]
+              "enum": ["AND", "OR"]
             }
           }
         ],
@@ -248,9 +238,7 @@
     },
     "/birds/{birdId}": {
       "get": {
-        "tags": [
-          "birds"
-        ],
+        "tags": ["birds"],
         "summary": "Get Bird",
         "description": "Bird. Includes recording links from Xeno Canto",
         "operationId": "getRecordings",
@@ -272,6 +260,186 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BirdPlus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized. Try providing an API-Key header",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/checklists": {
+      "get": {
+        "tags": ["checklists"],
+        "summary": "Get Checklists List",
+        "description": "Retrieve a paged list of checklists",
+        "operationId": "getChecklists",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseChecklist"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized. Try providing an API-Key header",
+            "content": {}
+          }
+        }
+      },
+      "post": {
+        "tags": ["checklists"],
+        "summary": "Add a Checklist",
+        "description": "Adds a checklist",
+        "operationId": "addChecklist",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Checklist"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Checklist"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized. Try providing an API-Key header",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/checklists/{checklistId}/entries": {
+      "get": {
+        "tags": ["checklists"],
+        "summary": "Get Checklist CheckList",
+        "description": "Retrieve checklist entries for checklist",
+        "operationId": "getChecklistEntries",
+        "parameters": [
+          {
+            "name": "checklistId",
+            "in": "path",
+            "description": "Checklist id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Which page to fetch",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Size of page to fetch. Max 100",
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseChecklistEntry"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized. Try providing an API-Key header",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/checklists/{checklistId}/entries/{birdId}": {
+      "post": {
+        "tags": ["checklists"],
+        "summary": "Add CheckList entry",
+        "description": "Adds checklist entry for checklist",
+        "operationId": "postChecklistEntry",
+        "parameters": [
+          {
+            "name": "checklistId",
+            "in": "path",
+            "description": "Checklist id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "birdId",
+            "in": "path",
+            "description": "Bird id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChecklistEntry"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChecklistEntry"
                 }
               }
             }
@@ -326,10 +494,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "North America",
-                "Western Europe"
-              ]
+              "enum": ["North America", "Western Europe"]
             }
           },
           "wingspanMin": {
@@ -439,12 +604,94 @@
           "pageSize": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "PagedResponseBird": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PagedResponse"
           },
-          "entities": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Bird"
+          {
+            "type": "object",
+            "properties": {
+              "entities": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Bird"
+                }
+              }
             }
+          }
+        ]
+      },
+      "PagedResponseChecklist": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PagedResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "entities": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Checklist"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PagedResponseChecklistEntry": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PagedResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "entities": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ChecklistEntry"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Checklist": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "format": "byte"
+          },
+          "id": {
+            "type": "string",
+            "format": "byte"
+          }
+        }
+      },
+      "ChecklistEntry": {
+        "type": "object",
+        "properties": {
+          "birdId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": {
+            "type": "string",
+            "format": "byte"
+          },
+          "date-time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "type": "string",
+            "format": "byte"
           }
         }
       }

@@ -1,6 +1,6 @@
 {
   "name": "nuthatch-api",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "An api for birders",
   "main": "app.js",
   "scripts": {
@@ -8,7 +8,8 @@
   },
   "keywords": [
     "birding",
-    "api"
+    "api",
+    "nature"
   ],
   "author": "Andrew Gnagy",
   "license": "ISC",
@@ -19,10 +20,6 @@
     "email-validator": "^2.0.4",
     "express": "^4.17.1",
     "lodash": "^4.17.15",
-    "nodemailer": "^6.7.5",
-    "uuid": "^8.3.2"
-  },
-  "devDependencies": {
-    "sqlite3": "^5.0.8"
+    "nodemailer": "^6.7.5"
   }
 }
