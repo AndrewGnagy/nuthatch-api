@@ -16,6 +16,7 @@ let keysUsages = {};
 // Clear usages hourly
 setInterval(clearKeyUsages, 1000 * 60 * 60);
 function clearKeyUsages() {
+  //TODO Update database with totals
   keysUsages = {};
 }
 
@@ -109,6 +110,7 @@ router.post("/", handleRecaptcha, async (req, res) => {
     data: {
       email: email,
       usecase: req.body.usecase,
+      category: req.body.category,
       key: key,
     },
   };

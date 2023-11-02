@@ -109,7 +109,7 @@ router.post("/:checklistId/entries/:birdId", checkKey, async (req, res) => {
   }
 
   const checkKey = datastore.key([
-    "nh_checklist",
+    "nh_checklist_entry",
     req.params.checklistId + ":" + req.params.birdId,
   ]);
   const entity = {

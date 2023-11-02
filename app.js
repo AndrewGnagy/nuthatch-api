@@ -16,7 +16,7 @@ app.use("/", express.static("web"));
 app.use("/keys", keysRoute);
 app.use("/birds", birdsRoute);
 app.use("/v2/birds", birdsRouteV2);
-app.use("/checklist", checklistRoute);
+app.use("/checklists", checklistRoute);
 
 const PORT = process.env.PORT || 3000;
 
