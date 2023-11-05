@@ -15,9 +15,28 @@ const datastore = new Datastore();
 let keysUsages = {};
 // Clear usages hourly
 setInterval(clearKeyUsages, 1000 * 60 * 60);
-function clearKeyUsages() {
-  //TODO Update database with totals
+async function clearKeyUsages() {
+  for(const key in keysUsages) {
+    updateKeyCounts(key, keysUsages[key]);
+  }
+
   keysUsages = {};
+}
+
+async function updateKeyCounts(apiKey, callCount) {
+  let tKey = datastore.key([dataKind, apiKey]);
+  const oldKey = await datastore.get(tKey);
+  const keyData = {
+    key: tKey,
+    data: {
+      email: oldKey[0].email,
+      usecase: oldKey[0].usecase,
+      category: oldKey[0].category,
+      key: oldKey[0].key,
+      usage: oldKey[0].usage ? oldKey[0].usage + callCount : callCount,
+    },
+  };
+  return await datastore.save(keyData);
 }
 
 /**
