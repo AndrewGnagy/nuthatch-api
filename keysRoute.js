@@ -14,7 +14,7 @@ const datastore = new Datastore();
 
 let keysUsages = {};
 // Clear usages hourly
-setInterval(clearKeyUsages, 1000 * 60 * 60);
+setInterval(clearKeyUsages, 1000 * 60 * 30);
 async function clearKeyUsages() {
   for(const key in keysUsages) {
     updateKeyCounts(key, keysUsages[key]);
@@ -53,7 +53,7 @@ async function checkKey(req, res, next) {
     await datastore.get(taskKey);
     if (keysUsages[taskKey.name]) {
       if (keysUsages[taskKey.name] > 100) {
-        res.status(429).json({ error: "too many requests" });
+        res.status(429).json({ error: "Too many requests. Limit 100/hr. Need more? Contact lastelmsoft@gmail.com" });
         return;
       } else {
         keysUsages[taskKey.name]++;

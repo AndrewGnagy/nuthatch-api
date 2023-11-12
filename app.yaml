@@ -1,2 +1,5 @@
 runtime: nodejs20
 service: nuthatch-api
+basic_scaling:
+  max_instances: 4
+  idle_timeout: 35m
