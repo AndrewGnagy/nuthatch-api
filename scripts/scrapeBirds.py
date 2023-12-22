@@ -254,4 +254,17 @@ def removeDups():
             uniqueBirdList.append(bird)
             continue
 
-scrapeUnsplash()
+def updateBirdImages():
+    # Get all birds
+    birds = getBirds()
+    for bird in birds:
+        edited = False
+        for i, image in enumerate(bird['images']):
+            if "cloud.google" in image:
+                bird['images'][i] = image.replace("cloud.google", "googleapis")
+                edited = True
+        if edited:
+            print(bird['images'])
+            updateBird(bird)
+
+updateBirdImages()

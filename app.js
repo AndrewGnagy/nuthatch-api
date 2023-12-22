@@ -2,10 +2,10 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require('cors');
-const birdsRoute = require("./birdsRoute");
-const checklistRoute = require("./checklistRoute");
-const birdsRouteV2 = require("./birdsRouteV2");
-const { router: keysRoute } = require("./keysRoute");
+const birdsRoute = require("./routes/birdsRoute");
+const checklistRoute = require("./routes/checklistRoute");
+const birdsRouteV2 = require("./routes/birdsRouteV2");
+const { router: keysRoute } = require("./routes/keysRoute");
 
 // Pulling in the routes
 const app = express();
@@ -20,6 +20,11 @@ app.use("/checklists", checklistRoute);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  return console.log("Welcome to nuthatch-api on port " + PORT);
-});
+console.log(process.env.NODE_ENV)
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    return console.log("Welcome to nuthatch-api on port " + PORT);
+  });
+}
+
+module.exports = app;

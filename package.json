@@ -1,10 +1,11 @@
 {
   "name": "nuthatch-api",
-  "version": "2.1.0",
+  "version": "2.3.0",
   "description": "An api for birders",
   "main": "app.js",
   "scripts": {
-    "start": "node app"
+    "start": "node app",
+    "test": "set NODE_ENV=test&& mocha ./tests/*.spec.js"
   },
   "keywords": [
     "birding",
@@ -19,6 +20,7 @@
     "dotenv": "^16.0.1",
     "email-validator": "^2.0.4",
     "express": "^4.17.1",
+    "express-validator": "^7.0.1",
     "lodash": "^4.17.15",
     "nodemailer": "^6.7.5"
   },
@@ -26,6 +28,6 @@
     "chai": "^4.3.10",
     "mocha": "^10.2.0",
     "sinon": "^17.0.1",
-    "sinon-chai": "^3.7.0"
+    "chai-http": "^4.4.0"
   }
 }

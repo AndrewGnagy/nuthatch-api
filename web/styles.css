@@ -1582,3 +1582,22 @@ a {
 .hover-text-dark-gray:hover {
     color: #463F3A !important
 }
+
+.bg-img {
+    position: relative;
+    /* opacity: 0.65; */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.bg-img1 {
+    background-image: url(RubyCrownedKinglet.jpg);
+    min-height: 300px;
+}
+
+.bg-img2 {
+    background-image: url(RedHeadedWoodpecker.jpg);
+    min-height: 500px;
+}

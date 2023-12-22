@@ -2,7 +2,7 @@
 require("dotenv").config();
 const router = require("express").Router();
 const { randomUUID } = require('crypto');
-const mailer = require("./mailer");
+const mailer = require("../mailer");
 const validator = require("email-validator");
 
 const dataKind = "ApiKey";
@@ -14,13 +14,19 @@ const datastore = new Datastore();
 
 let keysUsages = {};
 // Clear usages hourly
-setInterval(clearKeyUsages, 1000 * 60 * 30);
+setInterval(clearKeyUsages, 1000 * 60 * 14);
 async function clearKeyUsages() {
   for(const key in keysUsages) {
     updateKeyCounts(key, keysUsages[key]);
   }
 
   keysUsages = {};
+}
+
+// Usage overrides
+let usageOverrides = {
+  "1520eee2-4a26-46ca-8201-10534267b8a8": 3000, //Student
+  "0fe8f758-8718-4128-8897-c97cfee45506": 3000 //Website example
 }
 
 async function updateKeyCounts(apiKey, callCount) {
@@ -50,10 +56,14 @@ async function checkKey(req, res, next) {
   }
   const taskKey = datastore.key([dataKind, apiKey]);
   try {
-    await datastore.get(taskKey);
+    let foundKey = await datastore.get(taskKey);
+    if(!foundKey[0]) {
+      throw "Key not found";
+    }
     if (keysUsages[taskKey.name]) {
-      if (keysUsages[taskKey.name] > 100) {
-        res.status(429).json({ error: "Too many requests. Limit 100/hr. Need more? Contact lastelmsoft@gmail.com" });
+      let limit = usageOverrides[apiKey] || 500;
+      if (keysUsages[taskKey.name] > limit) {
+        res.status(429).json({ error: `Too many requests. Limit ${limit}/hr. Need more? Contact lastelmsoft@gmail.com` });
         return;
       } else {
         keysUsages[taskKey.name]++;
@@ -66,9 +76,6 @@ async function checkKey(req, res, next) {
     return;
   }
 
-  // res.on("finish", () => {
-  //console.log(req, res, "Api request completed with status " + res.statusCode);
-  // });
   next();
 }
 
@@ -142,6 +149,6 @@ router.post("/", handleRecaptcha, async (req, res) => {
 });
 
 module.exports = {
-  router: router,
-  checkKey: checkKey
+  router,
+  checkKey
 }

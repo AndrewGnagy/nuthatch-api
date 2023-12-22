@@ -1,17 +1,12 @@
-"use strict";
-require("dotenv").config();
+const { pagedResponse, readPagingParams } = require("../paging");
 const { randomUUID } = require("crypto");
-
-const router = require("express").Router();
-const { checkKey } = require("./keysRoute");
-const { pagedResponse, readPagingParams } = require("./paging");
-
+const { matchedData } = require("express-validator");
 // Imports the Google Cloud client library
 const { Datastore } = require("@google-cloud/datastore");
 // Creates a client
 const datastore = new Datastore();
 
-router.get("/", checkKey, async (req, res) => {
+let getChecklists = async (req, res) => {
   const query = datastore
     .createQuery("nh_checklist")
     .filter("api_key", "=", req.get("API-Key"));
@@ -23,9 +18,9 @@ router.get("/", checkKey, async (req, res) => {
     };
   });
   res.json(pagedResponse(checklists, 1, 25));
-});
+};
 
-router.post("/", checkKey, async (req, res) => {
+let postChecklist = async (req, res) => {
   const query = datastore
     .createQuery("nh_checklist")
     .filter("api_key", "=", req.get("API-Key"));
@@ -57,13 +52,9 @@ router.post("/", checkKey, async (req, res) => {
   };
   await datastore.save(entity);
   res.json(entity.data);
-});
+};
 
-router.delete("/:checklistId", checkKey, async (req, res) => {
-  if (!req.params.checklistId) {
-    res.status(400);
-    res.json({ message: "invalid request" });
-  }
+let deleteChecklist = async (req, res) => {
   //Delete checklist
   const checklistKey = datastore.key(["nh_checklist", req.params.checklistId]);
   await datastore.delete(checklistKey);
@@ -76,56 +67,38 @@ router.delete("/:checklistId", checkKey, async (req, res) => {
     return datastore.delete(check);
   });
   res.json();
-});
+};
 
-router.get("/:checklistId/entries", checkKey, async (req, res) => {
+let getChecklistEntries = async (req, res) => {
   let pageParams = readPagingParams(req, 100);
   const query = datastore
     .createQuery("nh_checklist_entry")
     .filter("checklistId", "=", req.params.checklistId);
   let [checks] = await datastore.runQuery(query);
   res.json(pagedResponse(checks, pageParams.page, pageParams.pageSize));
-});
+};
 
-router.post("/:checklistId/entries/:birdId", checkKey, async (req, res) => {
-  //Assert params exists
-  if (!req.params.checklistId || !req.params.birdId) {
-    res.status(400);
-    res.json({ message: "invalid request" });
-  }
-  //Assert checklist exists
-  try {
-    await datastore.get(datastore.key(["nh_checklist_entry", req.params.checklistId]));
-  } catch (e) {
-    res.status(404).json({ error: "No such checklist" });
-    return;
-  }
-  //Assert checklist exists
-  try {
-    await datastore.get(datastore.key(["Bird", req.params.birdId]));
-  } catch (e) {
-    res.status(404).json({ error: "No such bird" });
-    return;
-  }
+let postChecklistEntry = async (req, res) => {
+  const allData = matchedData(req);
 
   const checkKey = datastore.key([
     "nh_checklist_entry",
-    req.params.checklistId + ":" + req.params.birdId,
+    allData.checklistId + ":" + allData.birdId,
   ]);
   const entity = {
     key: checkKey,
     data: [
       {
         name: "checklistId",
-        value: req.params.checklistId,
+        value: allData.checklistId,
       },
       {
         name: "birdId",
-        value: req.params.birdId,
+        value: allData.birdId,
       },
       {
         name: "description",
-        value: req.body.description,
+        value: allData.description,
       },
       {
         name: "date-time",
@@ -133,7 +106,7 @@ router.post("/:checklistId/entries/:birdId", checkKey, async (req, res) => {
       },
       {
         name: "location",
-        value: req.body.location,
+        value: allData.location,
       },
     ],
   };
@@ -144,6 +117,6 @@ router.post("/:checklistId/entries/:birdId", checkKey, async (req, res) => {
       return set;
     }, {})
   );
-});
+};
 
-module.exports = router;
+module.exports = { getChecklists, postChecklist, deleteChecklist, getChecklistEntries, postChecklistEntry};
