@@ -107,12 +107,18 @@ async function getBirdsV2(req, res) {
   if (req.query.operator === "OR") {
     filteredList = birdsList.filter((bird) => {
       return sentFilterKeys.some((key) => {
+        if (key == "status") {
+          key = "conservationStatus";
+        }
         return filterCheck(key, bird, filters[key]);
       });
     });
   } else {
     filteredList = birdsList.filter((bird) => {
       return sentFilterKeys.every((key) => {
+        if (key == "status") {
+          key = "conservationStatus";
+        }
         return filterCheck(key, bird, filters[key]);
       });
     });
